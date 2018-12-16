@@ -1,8 +1,5 @@
 from flask import Flask, jsonify, request, abort
 from passlib.hash import pbkdf2_sha256 as hasher
-from datetime import datetime
-from flask_httpauth import HTTPBasicAuth
-auth = HTTPBasicAuth()
 
 app = Flask(__name__)
 
@@ -23,22 +20,18 @@ def not_found(error):
 def not_found(error):
     return jsonify({'error': 'Your request doesn\'t contain JSON'}), 400
 
-@auth.error_handler
-def unauthorized():
-    return jsonify({'error': 'Unauthorized access'}), 403
-
 
 @app.route('/creditcard/balance', methods=['GET'])
 def balance():
     if not request.json:
-        return jsonify({ 'error' : 'Your request is not JSON' }), 400
+        abort(400)
    
     for customer in customer_list:
         if customer['holder'] == request.json['holder'] and customer['expiration'] == request.json['expiration'] and customer['cvc'] == request.json['cvc']:
             if hasher.verify(customer['number'],request['number']):
                 return jsonify({'result': 'Success','balance':customer['balance']}), 200 
 
-    return jsonify({'result': 'Wrong password or email'}), 400 # Password does not match
+    return jsonify({'result': 'Invalid credentials'}), 400 # Password does not match
 
     
 
@@ -46,7 +39,7 @@ def balance():
 def pay():
     with app.app_context():
         if not request.json:
-            return jsonify({ 'error' : 'Your request is not JSON' }), 400
+            abort(400)
         for customer in customer_list:
             if customer['holder'] == request.json['holder'] and customer['expiration'] == request.json['expiration'] and customer['cvc'] == request.json['cvc']:
                 if hasher.verify(request.json['number'],customer['number']):                    
