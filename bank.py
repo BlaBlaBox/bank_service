@@ -40,11 +40,12 @@ def pay():
     with app.app_context():
         if not request.json:
             abort(400)
+
         for customer in customer_list:
             if customer['holder'] == request.json['holder'] and customer['expiration'] == request.json['expiration'] and customer['cvc'] == request.json['cvc']:
                 if hasher.verify(request.json['number'],customer['number']):                    
-                    if customer['balance'] >= request.json['cost']:
-                        customer['balance'] -= request.json['cost']
+                    if customer['balance'] >= int(request.json['cost']):
+                        customer['balance'] -= int(request.json['cost'])
                         return jsonify({'result': 'Success'}), 200 
                     else:
                         return jsonify({'result': 'Lack of balance'}), 200 
@@ -53,4 +54,4 @@ def pay():
         return jsonify({'result': 'Invalid credentials'}), 400 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8000) 
+    app.run(debug=True, port=7000) 
