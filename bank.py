@@ -48,7 +48,7 @@ def pay():
                     if customer['balance'] >= int(request.json['cost']):
                         customer['balance'] -= int(request.json['cost'])
                         return jsonify({'result': 'Success'}), 200
-                    return jsonify({'result': 'Lack of balance'}), 200
+                    return jsonify({'result': 'Lack of balance'}), 402
 
         return jsonify({'result': 'Invalid credentials'}), 400
 
